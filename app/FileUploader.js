@@ -19,7 +19,7 @@ export default function FileUploader({ onFileTitle, onFileContent }) {
     };
 
     return (
-        <div className="p-2">
+        <div className="p-2 transbox">
             <label for="#file">
                 Seleccione su archivo
                 <input id="file" type="file" onChange={handleFileChange} />

@@ -15,16 +15,15 @@ export default function TextEditor({ title, content, text }) {
     };
 
     const textAreaStyle = {
-        background: "none",
         width: "100%",
         border: "none",
     };
 
     return (
-        <div className="p-2 h-100 overflow-y-hidden ">
-            <h3 className="fs-4">{title}</h3>
+        <div className="p-2 h-100 overflow-y-hidden  ">
+            <h3 className="fs-4 transbox">{title}</h3>
             <textarea
-                className="h-100 overflow-y-auto text-center"
+                className="h-100 overflow-y-auto text-center  transbox"
                 style={textAreaStyle}
                 value={editableContent}
                 onChange={handleTextAreaChange}
