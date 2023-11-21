@@ -21,7 +21,11 @@ export default function Text({ title, handleContent }) {
     return (
         <div className="col-8 h-100 d-flex flex-column">
             <h2 className="fs-2 p-2">{title}</h2>
-            <TextEditor title={fileTitle} content={fileContent} />
+            <TextEditor
+                title={fileTitle}
+                content={fileContent}
+                text={handleContent}
+            />
             <FileUploader
                 onFileContent={handleFileUpload}
                 onFileTitle={handleTitle}
