@@ -5,9 +5,9 @@ import Text from './Text';
 
 export default function Home() {
   return (
-      <div className="container-fluid text-center align-items-center vh-100">
+      <div className="container-fluid text-center vh-100 d-flex flex-column">
         <h1 className='fs-1'>Proyecto 3er Parcial</h1>
-        <div className="row align-items-center">
+        <div className="row align-items-start flex-grow-1 h-75" >
           <Text 
             title="Texto" 
             />

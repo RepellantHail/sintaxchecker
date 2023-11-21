@@ -1,18 +1,29 @@
 'use client'
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-export default function FileUploader  ()  {
-    const [count, setCount] = useState(0);
+export default function FileUploader  ({ onFileTitle,onFileContent  })  {
 
-    function handleClick() {
-        setCount(count + 1);
-    }
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+    
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const fileContent = e.target.result;
+            onFileContent(fileContent);
+          };
+    
+          reader.readAsText(file);
+          onFileTitle(file.name);
+        }
+      };
 
   return (
-    <button onClick={handleClick}>
-      Upload {count} 
-    </button>
+    <div className='p-2'>
+      <label for='#file'>Seleccione su archivo 
+        <input id='file' type="file" onChange={handleFileChange} />
+      </label>
+    </div>
   );
 };
