@@ -1,7 +1,3 @@
-'use client'
-
-import React, { useState } from 'react';
-
 export default function FileUploader  ({ onFileTitle,onFileContent  })  {
 
     const handleFileChange = (event) => {
