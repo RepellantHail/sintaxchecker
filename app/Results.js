@@ -18,8 +18,13 @@ export default function Result({ title, content }) {
         "char",
         "print",
     ];
+    let wordCount = 0;
 
     const whitespaceChars = ["\n", "\t", " "];
+    const operadoresRelacionales = ["<", "<=", ">", ">=", "==", "!="];
+    const operadoresAritmeticos = ["+", "-", "/", "*"];
+    const operadorLogico = ["&&", "||", "!"];
+    const specialChars = ["!@#$%^&*()+"];
 
     const initialData = [
         { label: "Palabras reservadas", value: 0 },
@@ -28,11 +33,11 @@ export default function Result({ title, content }) {
         { label: "Operadores Lógicos", value: 0 },
         { label: "Operadores Aritméticos", value: 0 },
         { label: "Asignaciones", value: 0 },
-        { label: "Número Enteros", value: 0 },
+        { label: "Números Enteros", value: 0 },
         { label: "Números Decimales", value: 0 },
         { label: "Cadena de caracteres", value: 0 },
         { label: "Comentarios Multilinea", value: 0 },
-        { label: "Comentario de Linea", value: 0 },
+        { label: "Comentarios de Linea", value: 0 },
         { label: "Paréntesis", value: 0 },
         { label: "Llaves", value: 0 },
         { label: "Errores", value: 0 },
@@ -65,21 +70,100 @@ export default function Result({ title, content }) {
         });
     };
 
+    function startsWithLetter(word) {
+        if (word.length === 0) return false;
+
+        const firstCharCode = word.charCodeAt(0);
+
+        return (
+            (firstCharCode >= 65 && firstCharCode <= 90) ||
+            (firstCharCode >= 97 && firstCharCode <= 122)
+        );
+    }
+
     const processWord = (word) => {
+        wordCount++;
+        if (word == "") wordCount--;
         setProcessedData((prevData) => {
             const updatedData = prevData.map((item) => {
-                switch (item.label) {
+                //Traver the map
+                switch (
+                    item.label //Check specific case
+                ) {
                     case "Palabras reservadas":
-                        if (palabrasReservadas.includes(word.toLowerCase())) {
+                        if (palabrasReservadas.includes(word))
                             return { ...item, value: item.value + 1 };
+                        break;
+                    case "Identificadores":
+                        if (
+                            startsWithLetter(word) &&
+                            !word.includes(specialChars) &&
+                            !palabrasReservadas.includes(word)
+                        )
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Operadores Relacionales":
+                        if (operadoresRelacionales.includes(word))
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Operadores Lógicos":
+                        if (operadorLogico.includes(word))
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Operadores Aritméticos":
+                        if (operadoresAritmeticos.includes(word))
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Asignaciones":
+                        if (word == "=")
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Números Enteros":
+                        if (!isNaN(Number(word)) && word != "") {
+                            if (Number.isInteger(Number(word)))
+                                return { ...item, value: item.value + 1 };
                         }
                         break;
-
+                    case "Números Decimales":
+                        if (!isNaN(Number(word)) && word != "") {
+                            if (!Number.isInteger(Number(word)))
+                                return { ...item, value: item.value + 1 };
+                        }
+                        break;
+                    case "Cadena de caracteres":
+                        if (word.startsWith('"') && word.endsWith('"'))
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Comentarios Multilinea":
+                        if (word.startsWith("/*") && word.endsWith("*/"))
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Comentarios de Linea":
+                        if (word.startsWith("//"))
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Paréntesis":
+                        if (word == "(" || word == ")")
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Llaves":
+                        if (word == "{" || word == "}")
+                            return { ...item, value: item.value + 1 };
+                        break;
+                    case "Errores":
+                    // if (word != "")
+                    //     return { ...item, value: wordCount - total };
                     default:
                         return item;
                 }
                 return item;
             });
+
+            const total = prevData
+                .slice(0, -1)
+                .reduce((acc, item) => acc + item.value, 0);
+            updatedData.find((item) => item.label === "Errores").value =
+                wordCount - total;
 
             return updatedData;
         });
