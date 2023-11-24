@@ -43,10 +43,6 @@ export default function Result({ title, content }) {
     ];
 
     const whitespaceChars = ["\n", "\t", " ", "\0", ""];
-    const operadoresRelacionales = ["<", "<=", ">", ">=", "==", "!="];
-    const operadoresAritmeticos = ["+", "-", "/", "*"];
-    const operadorLogico = ["&&", "||", "!"];
-    const specialChars = ["!@#$%^&*()+"];
 
     const resultMap = {
         "Palabras reservadas": 0,
@@ -72,7 +68,6 @@ export default function Result({ title, content }) {
             states.push(processWord(word));
         });
         processStates(states);
-        console.log(resultMap);
         setResultMap(resultMap);
     };
 
@@ -83,6 +78,54 @@ export default function Result({ title, content }) {
                     resultMap["Errores"]++;
                     break;
                 case 3:
+                    resultMap["Operadores Lógicos"]++;
+                    break;
+                case 5:
+                    resultMap["Asignaciones"]++;
+                    break;
+                case 6:
+                    resultMap["Operadores Relacionales"]++;
+                    break;
+                case 7:
+                    resultMap["Operadores Relacionales"]++;
+                    break;
+                case 8:
+                    resultMap["Paréntesis"]++;
+                    break;
+                case 9:
+                    resultMap["Llaves"]++;
+                    break;
+                case 10:
+                    resultMap["Operadores Aritméticos"]++;
+                    break;
+                case 11:
+                    resultMap["Comentarios de Linea"]++;
+                    break;
+                case 14:
+                    resultMap["Comentarios Multilinea"]++;
+                    break;
+                case 16:
+                    resultMap["Cadena de caracteres"]++;
+                    break;
+                case 17:
+                    resultMap["Operadores Aritméticos"]++;
+                    break;
+                case 18:
+                    resultMap["Operadores Aritméticos"]++;
+                    break;
+                case 19:
+                    resultMap["Números Enteros"]++;
+                    break;
+                case 20:
+                    resultMap["Números Decimales"]++;
+                    break;
+                case 21:
+                    resultMap["Identificadores"]++;
+                    break;
+                case 22:
+                    resultMap["Palabras reservadas"]++;
+                    break;
+                case 23:
                     resultMap["Operadores Lógicos"]++;
                     break;
                 default:
@@ -107,6 +150,11 @@ export default function Result({ title, content }) {
         return charArray;
     };
 
+    function isLetter(char) {
+        const charCode = char.charCodeAt(0);
+        return (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
+    }
+
     const processWord = (word) => {
         let state = 0;
         const charArray = word.split("");
@@ -114,15 +162,99 @@ export default function Result({ title, content }) {
             switch (state) {
                 case 0:
                     if (c == "&") state = 1;
+                    if (c == '|') state = 4;
+                    if (c == "!") state = 3
+                    if (c == '=') state = 5
+                    if (c == '/') state = 10
+                    if (c == '"') state = 15
+                    if (c == '-') state = 18
+                    if (!isNaN(c)) state = 19
+                    if ( isLetter(c)) state = 21
+                    if (c == '<' || c == '>') state = 6
+                    if (c == '(' || c == ')') state = 8
+                    if (c == '{' || c == '}') state = 9
+                    if (c == '+' || c == '*' || c == '%') state = 17
                     break;
                 case 1:
-                    state = c == "&" ? 3 : 2;
+                    if(c == '&') state = 23
+                    else state = 2                  
                     break;
-                case 2:
+                case 2: break;
+                case 3:
+                    if(c == '=') state = 7
+                    else state = 2
+                    break;
+                case 4:
+                    if(c == '|') state = 23
+                    else state = 2
+                    break;
+                case 5:
+                    if(c == '=') state = 7
+                    else state = 2
+                    break;
+                case 6:
+                    if(c == '=') state = 7
+                    else         state = 2
+                    break;
+                case 7:
+                    state = 2
+                    break; 
+                case 8:
+                    state = 2
+                    break;
+                case 9:
+                    state = 2
+                    break;
+                case 10: 
+                    if      (c == '/')  state = 11
+                    else if (c == '*')  state = 12
+                    else                state = 2
+                    break;
+                case 11:                    
+                    break;
+                case 12:  
+                    if (c == '*')  state = 13   
+                    break;
+                case 13:  
+                    if (c == '/') state = 14
+                    else state = 12   
+                    break;
+                case 14: 
+                    state = 2
+                    break;
+                case 15: 
+                    if(c == '"') state = 16
+                    break;
+                case 16:
+                    state = 2;
+                    break;
+                case 17:
+                    state = 2
+                    break;
+                case 18:
+                    if (!isNaN(c)) state = 19
+                    break;
+                case 19:
+                    if (c == '.') state = 20
+                    break;
+                case 20: 
+                    if (c == '.') state = 2
+                    break;
+                case 21:
+                    if(!isLetter(c) || !c == '_')
+                        state = 2
+                    break;
+                case 23:                     
+                    state = 2;
                     break;
                 default:
             }
         });
+        //Check if the word is reserved
+        if(palabrasReservadas.includes(word))
+            state = 22;
+        if(state == 7) 
+            console.log(word)
         return state;
     };
 
