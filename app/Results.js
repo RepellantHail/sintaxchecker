@@ -3,6 +3,29 @@ import React, { useState } from "react";
 import ResultRow from "./ResultRow";
 
 export default function Result({ title, content }) {
+    const initialData = {
+        "Palabras reservadas": 0,
+        "Identificadores": 0,
+        "Operadores Relacionales": 0,
+        "Operadores Lógicos": 0,
+        "Operadores Aritméticos": 0,
+        "Asignaciones": 0,
+        "Números Enteros": 0,
+        "Números Decimales": 0,
+        "Cadena de caracteres": 0,
+        "Comentarios Multilinea": 0,
+        "Comentarios de Linea": 0,
+        "Paréntesis": 0,
+        "Llaves": 0,
+        "Errores": 0,
+    };
+
+    const [resultMapFinal, setResultMap] = useState(initialData);
+
+    const handleReload = () => {
+        window.location.reload();
+    };
+
     const palabrasReservadas = [
         "if",
         "else",
@@ -18,155 +41,89 @@ export default function Result({ title, content }) {
         "char",
         "print",
     ];
-    let wordCount = 0;
 
-    const whitespaceChars = ["\n", "\t", " "];
+    const whitespaceChars = ["\n", "\t", " ", "\0", ""];
     const operadoresRelacionales = ["<", "<=", ">", ">=", "==", "!="];
     const operadoresAritmeticos = ["+", "-", "/", "*"];
     const operadorLogico = ["&&", "||", "!"];
     const specialChars = ["!@#$%^&*()+"];
 
-    const initialData = [
-        { label: "Palabras reservadas", value: 0 },
-        { label: "Identificadores", value: 0 },
-        { label: "Operadores Relacionales", value: 0 },
-        { label: "Operadores Lógicos", value: 0 },
-        { label: "Operadores Aritméticos", value: 0 },
-        { label: "Asignaciones", value: 0 },
-        { label: "Números Enteros", value: 0 },
-        { label: "Números Decimales", value: 0 },
-        { label: "Cadena de caracteres", value: 0 },
-        { label: "Comentarios Multilinea", value: 0 },
-        { label: "Comentarios de Linea", value: 0 },
-        { label: "Paréntesis", value: 0 },
-        { label: "Llaves", value: 0 },
-        { label: "Errores", value: 0 },
-    ];
-
-    const [processedData, setProcessedData] = useState(initialData);
-
-    const handleReload = () => {
-        window.location.reload();
+    const resultMap = {
+        "Palabras reservadas": 0,
+        "Identificadores": 0,
+        "Operadores Relacionales": 0,
+        "Operadores Lógicos": 0,
+        "Operadores Aritméticos": 0,
+        "Asignaciones": 0,
+        "Números Enteros": 0,
+        "Números Decimales": 0,
+        "Cadena de caracteres": 0,
+        "Comentarios Multilinea": 0,
+        "Comentarios de Linea": 0,
+        "Paréntesis": 0,
+        "Llaves": 0,
+        "Errores": 0,
     };
 
     const processData = () => {
+        const wordArray = filterWords();
+        const states = [];
+        wordArray.forEach((word) => {
+            states.push(processWord(word));
+        });
+        processStates(states);
+        console.log(resultMap);
+        setResultMap(resultMap);
+    };
+
+    const processStates = (states) => {
+        states.forEach((state) => {
+            switch (state) {
+                case 2:
+                    resultMap["Errores"]++;
+                    break;
+                case 3:
+                    resultMap["Operadores Lógicos"]++;
+                    break;
+                default:
+            }
+        });
+    }
+
+    const filterWords = () => {
+        const charArray = [];
         const charText = content.split(""); //Convert content to char Array
         let word = "";
 
         charText.forEach((c) => {
             //Traverse the content
-            if (whitespaceChars.includes(c)) {
-                processWord(word);
-                word = "";
-            } else {
+            if (!whitespaceChars.includes(c)) {
                 word += c;
+            } else if (word.length > 0) {
+                charArray.push(word);
+                word = "";
             }
         });
-
-        // Update the state after the loop
-        setProcessedData((prevData) => {
-            const updatedData = [...prevData];
-            return updatedData;
-        });
+        return charArray;
     };
 
-    function startsWithLetter(word) {
-        if (word.length === 0) return false;
-
-        const firstCharCode = word.charCodeAt(0);
-
-        return (
-            (firstCharCode >= 65 && firstCharCode <= 90) ||
-            (firstCharCode >= 97 && firstCharCode <= 122)
-        );
-    }
-
     const processWord = (word) => {
-        wordCount++;
-        if (word == "") wordCount--;
-        setProcessedData((prevData) => {
-            const updatedData = prevData.map((item) => {
-                //Traver the map
-                switch (
-                    item.label //Check specific case
-                ) {
-                    case "Palabras reservadas":
-                        if (palabrasReservadas.includes(word))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Identificadores":
-                        if (
-                            startsWithLetter(word) &&
-                            !word.includes(specialChars) &&
-                            !palabrasReservadas.includes(word)
-                        )
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Operadores Relacionales":
-                        if (operadoresRelacionales.includes(word))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Operadores Lógicos":
-                        if (operadorLogico.includes(word))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Operadores Aritméticos":
-                        if (operadoresAritmeticos.includes(word))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Asignaciones":
-                        if (word == "=")
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Números Enteros":
-                        if (!isNaN(Number(word)) && word != "") {
-                            if (Number.isInteger(Number(word)))
-                                return { ...item, value: item.value + 1 };
-                        }
-                        break;
-                    case "Números Decimales":
-                        if (!isNaN(Number(word)) && word != "") {
-                            if (!Number.isInteger(Number(word)))
-                                return { ...item, value: item.value + 1 };
-                        }
-                        break;
-                    case "Cadena de caracteres":
-                        if (word.startsWith('"') && word.endsWith('"'))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Comentarios Multilinea":
-                        if (word.startsWith("/*") && word.endsWith("*/"))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Comentarios de Linea":
-                        if (word.startsWith("//"))
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Paréntesis":
-                        if (word == "(" || word == ")")
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Llaves":
-                        if (word == "{" || word == "}")
-                            return { ...item, value: item.value + 1 };
-                        break;
-                    case "Errores":
-                    // if (word != "")
-                    //     return { ...item, value: wordCount - total };
-                    default:
-                        return item;
-                }
-                return item;
-            });
-
-            const total = prevData
-                .slice(0, -1)
-                .reduce((acc, item) => acc + item.value, 0);
-            updatedData.find((item) => item.label === "Errores").value =
-                wordCount - total;
-
-            return updatedData;
+        let state = 0;
+        const charArray = word.split("");
+        charArray.forEach((c) => {
+            switch (state) {
+                case 0:
+                    if (c == "&") state = 1;
+                    break;
+                case 1:
+                    state = c == "&" ? 3 : 2;
+                    break;
+                case 2:
+                    break;
+                default:
+            }
         });
+        return state;
     };
 
     return (
@@ -195,11 +152,11 @@ export default function Result({ title, content }) {
                 </div>
 
                 <div className=" transbox">
-                    {processedData.map((item, index) => (
+                    {Object.entries(resultMapFinal).map(([label, value], index) => (
                         <ResultRow
                             key={index}
-                            label={item.label}
-                            value={item.value}
+                            label={label}
+                            value={value}
                         />
                     ))}
                 </div>
